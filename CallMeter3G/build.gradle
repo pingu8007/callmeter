@@ -41,6 +41,12 @@ android {
 
 
     signingConfigs {
+        debug {
+            storeFile file("../debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
         release {
             File releaseProps = new File("release.properties")
             if (releaseProps.exists()) {
@@ -58,6 +64,7 @@ android {
     buildTypes {
         debug {
             versionNameSuffix "-debug"
+            signingConfig signingConfigs.debug
         }
 
         nologDebug {
