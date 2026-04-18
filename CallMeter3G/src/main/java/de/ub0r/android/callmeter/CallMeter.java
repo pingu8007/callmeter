@@ -30,6 +30,14 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import de.ub0r.android.lib.Utils;
 import de.ub0r.android.logg0r.Log;
 
@@ -113,6 +121,54 @@ public final class CallMeter extends Application {
 
         super.onCreate();
         Utils.setLocale(this);
+        if (BuildConfig.DEBUG) {
+            installCrashHandler();
+        }
+    }
+
+    private void installCrashHandler() {
+        final Thread.UncaughtExceptionHandler defaultHandler =
+                Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                    StringWriter sw = new StringWriter();
+                    throwable.printStackTrace(new PrintWriter(sw));
+
+                    String report = "=== CRASH REPORT ===\n"
+                            + "Time:    " + sdf.format(new Date()) + "\n"
+                            + "Thread:  " + thread.getName() + "\n"
+                            + "Version: " + BuildConfig.VERSION_NAME + "\n"
+                            + "Android: " + Build.VERSION.RELEASE
+                            + " (API " + Build.VERSION.SDK_INT + ")\n"
+                            + "Device:  " + Build.MANUFACTURER + " " + Build.MODEL + "\n"
+                            + "\n--- STACK TRACE ---\n"
+                            + sw.toString();
+
+                    String filename = "crash_"
+                            + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date())
+                            + ".txt";
+                    File dir = getExternalFilesDir(null);
+                    if (dir == null) {
+                        dir = getFilesDir();
+                    }
+                    File f = new File(dir, filename);
+                    FileWriter fw = new FileWriter(f);
+                    fw.write(report);
+                    fw.flush();
+                    fw.close();
+                    android.util.Log.e(TAG, "Crash log: " + f.getAbsolutePath());
+                } catch (Exception ignored) {
+                }
+                if (defaultHandler != null) {
+                    defaultHandler.uncaughtException(thread, throwable);
+                } else {
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                }
+            }
+        });
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
