@@ -199,6 +199,27 @@ public final class CV2EditTextPreference extends EditTextPreference {
     }
 
     @Override
+    protected void onBindDialogView(View view) {
+        if (sm) {
+            super.onBindDialogView(view);
+            return;
+        }
+        // In sm=false mode the dialog uses doubleedit.xml (et1/et2) instead of
+        // EditTextPreference's internal mEditText. Android API 36+ calls
+        // mEditText.getWindowInsetsController().show() in showDialog() without
+        // a null guard, which NPEs when mEditText isn't attached to any window.
+        // Add mEditText as a GONE 0x0 view so it lives in the window hierarchy
+        // without affecting the visible layout.
+        EditText et = getEditText();
+        et.setText(getText());
+        if (et.getParent() instanceof ViewGroup) {
+            ((ViewGroup) et.getParent()).removeView(et);
+        }
+        et.setVisibility(View.GONE);
+        ((ViewGroup) view).addView(et, new ViewGroup.LayoutParams(0, 0));
+    }
+
+    @Override
     protected View onCreateDialogView() {
         if (sm) {
             return super.onCreateDialogView();
