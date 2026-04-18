@@ -25,7 +25,7 @@ jobs:
         run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Install Android SDK platform 26
-        run: sdkmanager "platforms;android-26" "build-tools;26.0.3"
+        run: sdkmanager "platforms;android-26" "build-tools;30.0.3"
 
       - name: Build debug APK
         run: |

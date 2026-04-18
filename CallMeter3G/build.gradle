@@ -4,7 +4,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:4.2.2'
     }
 }
 
@@ -93,25 +93,31 @@ dependencies {
     implementation 'de.ub0r.android.logg0r:logg0r:2.0.0'
 }
 
-task updateChangelog << {
-    def proc = 'shell/update-changelog.sh'.execute()
-    proc.in.eachLine {line -> println line}
-    proc.err.eachLine {line -> println 'ERROR: ' + line}
-    proc.waitFor()
+task updateChangelog {
+    doLast {
+        def proc = 'shell/update-changelog.sh'.execute()
+        proc.in.eachLine {line -> println line}
+        proc.err.eachLine {line -> println 'ERROR: ' + line}
+        proc.waitFor()
+    }
 }
 
-task removeUnfinishedTranslations << {
-    def proc = 'shell/remove-unfinished-translations.sh'.execute()
-    proc.in.eachLine {line -> println line}
-    proc.err.eachLine {line -> println 'ERROR: ' + line}
-    proc.waitFor()
+task removeUnfinishedTranslations {
+    doLast {
+        def proc = 'shell/remove-unfinished-translations.sh'.execute()
+        proc.in.eachLine {line -> println line}
+        proc.err.eachLine {line -> println 'ERROR: ' + line}
+        proc.waitFor()
+    }
 }
 
-task readdUnfinishedTranslations << {
-    def proc = "git checkout CallMeter3G/src/main/res/values-*/*xml".execute()
-    proc.in.eachLine {line -> println line}
-    proc.err.eachLine {line -> println 'ERROR: ' + line}
-    proc.waitFor()
+task readdUnfinishedTranslations {
+    doLast {
+        def proc = "git checkout CallMeter3G/src/main/res/values-*/*xml".execute()
+        proc.in.eachLine {line -> println line}
+        proc.err.eachLine {line -> println 'ERROR: ' + line}
+        proc.waitFor()
+    }
 }
 
 tasks.whenTaskAdded { task ->
